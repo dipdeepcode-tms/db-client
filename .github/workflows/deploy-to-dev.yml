@@ -1,0 +1,32 @@
+name: Deploy db-client to the development stand
+on: workflow_dispatch
+permissions: {}
+env:
+  CONTAINER_NAME: ${{ github.event.repository.name }}
+jobs:
+  deploy_db-client:
+    name: Deploy db-client
+    permissions:
+      contents: read
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Run container
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            docker stop ${{ env.CONTAINER_NAME }} || true
+            docker rm ${{ env.CONTAINER_NAME }} || true
+            docker volume create db-client_vol || true
+            docker run -d \
+              --name ${{ env.CONTAINER_NAME }} \
+              --restart unless-stopped \
+              --network database_net \
+              -e TZ=Europe/Moscow \
+              -e PGADMIN_DEFAULT_EMAIL=${{ secrets.PGADMIN_DEFAULT_EMAIL }} \
+              -e PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }} \
+              -v db-client_vol:/var/lib/pgadmin \
+              ${{ vars.IMAGE }}

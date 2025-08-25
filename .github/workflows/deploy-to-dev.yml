@@ -27,6 +27,6 @@ jobs:
               --network database_net \
               -e TZ=Europe/Moscow \
               -e PGADMIN_DEFAULT_EMAIL=${{ secrets.PGADMIN_DEFAULT_EMAIL }} \
-              -e PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }} \
+              -e PGADMIN_DEFAULT_PASSWORD="${{ secrets.PGADMIN_DEFAULT_PASSWORD }}" \
               -v db-client_vol:/var/lib/pgadmin \
               ${{ vars.IMAGE }}
